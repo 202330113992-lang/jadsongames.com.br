@@ -1,1 +1,0 @@
-# jadsongames.com.br

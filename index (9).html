@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Jadson Games Store</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+  --bg:#0b1020;
+  --card:#111936;
+  --accent:#00b4ff;
+  --text:#eaf1ff;
+  --muted:#9fb0d0;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:linear-gradient(180deg,#0b1020,#050814);
+  color:var(--text);
+}
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px;
+  background:#0a1430;
+  box-shadow:0 10px 30px rgba(0,0,0,.6);
+}
+.logo{font-size:26px;font-weight:900;color:var(--accent);}
+nav button{
+  background:none;border:none;color:var(--text);
+  font-size:15px;margin-left:15px;cursor:pointer;
+}
+nav button:hover{color:var(--accent)}
+
+.container{
+  display:grid;
+  grid-template-columns:240px 1fr;
+  gap:20px;
+  padding:20px;
+}
+aside{
+  background:var(--card);
+  padding:15px;
+  border-radius:14px;
+}
+aside h3{margin-top:0}
+aside button{
+  width:100%;
+  padding:10px;
+  margin-bottom:8px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  background:#18245a;
+  color:white;
+}
+aside button.active,
+aside button:hover{background:var(--accent);color:#000}
+
+main input{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:none;
+  margin-bottom:20px;
+  background:#0e1738;
+  color:white;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:16px;
+}
+
+.card{
+  background:var(--card);
+  border-radius:16px;
+  padding:12px;
+  position:relative;
+  transition:.2s;
+  cursor:pointer;
+}
+.card:hover{transform:translateY(-4px)}
+.card img{width:100%;height:180px;object-fit:cover;border-radius:12px;}
+.card h4{margin:10px 0 5px}
+.card small{color:var(--muted)}
+.price{
+  position:absolute;
+  top:10px;
+  right:10px;
+  background:var(--accent);
+  color:#000;
+  padding:6px 10px;
+  border-radius:12px;
+  font-weight:700;
+}
+.card button{
+  width:100%;
+  margin-top:10px;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:var(--accent);
+  font-weight:700;
+  cursor:pointer;
+  color:#000;
+}
+
+/* Carrinho */
+#cart{
+  position:fixed;
+  right:0;
+  top:0;
+  width:320px;
+  height:100%;
+  background:#0a1430;
+  padding:20px;
+  transform:translateX(100%);
+  transition:.3s;
+  overflow:auto;
+  z-index:900;
+}
+#cart.active{transform:translateX(0)}
+#cart h2{margin-top:0}
+.cart-item{border-bottom:1px solid #233;padding:8px 0;}
+.cart-item span{display:block}
+.cart-item button{
+  margin-top:5px;
+  background:#ff4d4d;
+  border:none;
+  color:white;
+  padding:5px;
+  border-radius:6px;
+  cursor:pointer;
+}
+.total{font-size:18px;margin-top:15px;}
+.checkout{
+  margin-top:10px;
+  width:100%;
+  padding:12px;
+  background:#00ff88;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+/* PIX */
+#pix{display:none;text-align:center;margin-top:10px;}
+#pix img{width:200px}
+
+/* Login */
+#login{display:none;padding:20px;}
+#login input{
+  width:100%;
+  padding:10px;
+  margin-bottom:10px;
+  border-radius:8px;
+  border:none;
+}
+
+/* Modal Fullscreen */
+#gameModal{
+  display:none;
+  position:fixed;
+  top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.95);
+  justify-content:center;
+  align-items:flex-start;
+  overflow:auto;
+  padding:40px 20px;
+  z-index:1000;
+}
+#gameModal .modal-content{
+  background:var(--card);
+  padding:20px;
+  border-radius:16px;
+  max-width:900px;
+  width:100%;
+  margin:auto;
+  color:var(--text);
+  position:relative;
+}
+#gameModal .close{
+  position:absolute;
+  top:10px;
+  right:10px;
+  cursor:pointer;
+  font-size:30px;
+  color:var(--accent);
+}
+.comments{margin-top:20px;}
+.comment{border-top:1px solid #233;padding:10px 0;}
+.comment small{color:#9fb0d0;}
+.comment input,.comment textarea{
+  width:100%;
+  margin-top:5px;
+  margin-bottom:10px;
+  padding:8px;
+  border-radius:6px;
+  border:none;
+}
+.comment button{
+  background:#00b4ff;color:#000;border:none;padding:10px;border-radius:8px;font-weight:700;cursor:pointer;
+}
+#gameModal img{width:100%; max-height:400px; object-fit:cover; border-radius:12px; margin-bottom:15px;}
+#gameModal button{width:100%; margin-top:15px;}
+
+/* Estrelas clicáveis */
+.stars{
+  display:flex;
+  gap:5px;
+  cursor:pointer;
+}
+.stars span{
+  font-size:20px;
+  color:#555;
+}
+.stars .active{color:#ffcc00;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">JADSON GAMES</div>
+  <nav>
+    <button onclick="toggleLogin()">Conta</button>
+    <button onclick="toggleCart()">Carrinho (<span id="cartCount">0</span>)</button>
+  </nav>
+</header>
+
+<div class="container">
+  <aside>
+    <h3>Plataformas</h3>
+    <button class="active" onclick="setFilter('all',this)">Todos</button>
+    <button onclick="setFilter('ps5',this)">PS5</button>
+    <button onclick="setFilter('ps4',this)">PS4</button>
+    <button onclick="setFilter('ps3',this)">PS3</button>
+  </aside>
+
+  <main>
+    <input placeholder="Buscar jogo..." oninput="searchGame(this.value)">
+    <div class="grid" id="grid"></div>
+  </main>
+</div>
+
+<!-- Carrinho -->
+<div id="cart">
+  <h2>Carrinho</h2>
+  <div id="cartItems"></div>
+  <div class="total">Total: R$ <span id="total">0.00</span></div>
+  <button class="checkout" onclick="showPix()">Finalizar (PIX)</button>
+  <div id="pix">
+    <h3>Pagamento PIX</h3>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=MESSI-E-MELHOR-QUE-CR7">
+    <p>Chave: JADSONLIONEL@GMAIL.com</p>
+  </div>
+</div>
+
+<!-- Login -->
+<div id="login">
+  <h2>Conta</h2>
+  <input id="userName" placeholder="Nome">
+  <input id="userEmail" placeholder="Email">
+  <button class="checkout" onclick="saveLogin()">Salvar</button>
+</div>
+
+<!-- Modal Fullscreen -->
+<div id="gameModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeGameModal()">&times;</span>
+    <div id="gameDetail"></div>
+  </div>
+</div>
+
+<script>
+// Jogos (pode adicionar mais como antes)
+const games = [
+ /* ================= PS5 ================= */
+{title:"Demon's Souls",price:71,plat:"ps5",img:"https://upload.wikimedia.org/wikipedia/pt/7/78/Demons_Souls_remake_capa.png"},
+{title:"Death Stranding 2: On The Beach",price:71.98,plat:"ps5",img:"https://upload.wikimedia.org/wikipedia/pt/4/49/Death_Stranding_2_On_The_Beach_Poster.jpg"},
+{title:"Marvel's Spider-Man: Miles Morales",price:71.9,plat:"ps5",img:"https://image.api.playstation.com/vulcan/ap/rnd/202008/1423/aA2QvyenlBrwV42v9tkXOvae.jpg"},
+{title:"Grand Theft Auto V",price:33.9,plat:"ps5",img:"https://m.media-amazon.com/images/I/81X9aPJMidL.jpg"},
+{title:"NBA 2K23",price:60,plat:"ps5",img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnIaUhc6IWb31NL_us8OUXPxHSurXaAlPdOg&s"},
+{title:"Mortal Kombat 1",price:150,plat:"ps5",img:"https://upload.wikimedia.org/wikipedia/pt/9/9d/Mortal_Kombat_1_PS5_capa_digital.png"},
+{title:"Mafia: The Old Country",price:71.98,plat:"ps5",img:"https://image.api.playstation.com/vulcan/ap/rnd/202504/2415/e96d584bd7dd59b8f6f3142be50c07794787f35c10f036f9.png"},
+{title:"The Last of Us Part II Remastered",price:55,plat:"ps5",img:"https://conteudo.imguol.com.br/c/entretenimento/35/2024/01/16/the-last-of-us-part-ii-remastered-e-exclusivo-para-playstation-5-1705450610743_v2_1x1.jpg"},
+{title:"Resident Evil 4",price:52.9,plat:"ps5",img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTd_h_nX6mYF69tKDYrE-EnBKVVpsdW7jR3O2mX-RXxgSBUik1IesC1YiJEpKBN_e6Zjmo"},
+{title:"Elden Ring Nightreign",price:44,plat:"ps5",img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlwgqf40lEpIrcqwcD-6fISahwR-a0F9-gOQ&s"},
+{title:"Sonic X Shadow Generations",price:63,plat:"ps5",img:"https://image.api.playstation.com/vulcan/ap/rnd/202411/2123/205aaaba2b3e42e1fe50516fa12d15be70fa9e00059fc490.png"},
+{title:"Dead Rising Deluxe Remaster",price:85.9,plat:"ps5",img:"https://assets.nuuvem.com/image/upload/t_boxshot_big/v1/products/6686fe23b815947efef32104/boxshot/mmitgu6jxzjddjlcunur.jpg"},
+{title:"Stellar Blade",price:69.9,plat:"ps5",img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsegdndOzD-szeDLbXloGYvTKSSGSGYBUFdA&s"},
+{title:"Helldivers 2",price:63.9,plat:"ps5",img:"https://image.api.playstation.com/vulcan/ap/rnd/202509/0420/8e6e7a5a19d3a6af495eee0ffb615f12ccd9828dc796e450.png"},
+{title:"Bleach Rebirth of Souls",price:56.9,plat:"ps5",img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIZsyazszi-whKomwy85LqbE5D5l6IhcfGvw&s"},
+{title:"Life Is Strange: Double Exposure",price:70,plat:"ps5",img:"https://image.api.playstation.com/vulcan/ap/rnd/202405/3016/10a09915d0404929d7f8722081b4e73e474caf763aa19c67.jpg"},
+{title:"Dragon Ball Z Kakarot DAIMA",price:50,plat:"ps5",img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNrR-jWKs8ihSOPF7qnPbRpIwjuxaTU1LGnA&s"},
+{title:"Returnal",price:71.98,plat:"ps5",img:"https://image.api.playstation.com/vulcan/ap/rnd/202011/1621/4ItSbqJE88H019Ua3WBQKLF8.png"},
+{title:"EA Sports FC 26",price:325.9,plat:"ps5",img:"https://image.api.playstation.com/vulcan/ap/rnd/202507/1617/2e757ffb0a6bb4b91af84db64e0183d725e56e5354f45eba.png"},
+{title:"Sackboy: Uma Grande Aventura",price:71.98,plat:"ps5",img:"https://image.api.playstation.com/vulcan/img/rnd/202010/2912/Ehz0o3GC5uwiFdIHkynlvmjs.png"},
+{title:"Monopoly",price:71,plat:"ps5",img:"https://image.api.playstation.com/vulcan/ap/rnd/202409/1207/127481d7453c43ba1a6df64600ce3501b51b0c2384493e6f.jpg"},
+{title:"Diablo IV",price:63,plat:"ps5",img:"https://image.api.playstation.com/vulcan/ap/rnd/202211/3017/Oo1B84A7BLCT157YFSxjtwG0.png"},
+{title:"Kingdom Come: Deliverance II",price:71.98,plat:"ps5",img:"https://image.api.playstation.com/vulcan/ap/rnd/202510/3014/75f3538bc7965480f3e561221250f656b9a9c9e276a816ec.png"},
+{title:"Dragon Age The Veilguard",price:22,plat:"ps5",img:"https://image.api.playstation.com/vulcan/ap/rnd/202406/2620/58cd12e15e39bce25374c96f8392c5a57f7af9290ca6fd30.png"},
+
+/* ================= PS4 ================= */
+{title:"EA Sports FC 26",price:390.9,plat:"ps4",img:"https://image.api.playstation.com/vulcan/ap/rnd/202507/1617/2e757ffb0a6bb4b91af84db64e0183d725e56e5354f45eba.png"},
+{title:"Red Dead Redemption 2",price:71.98,plat:"ps4",img:"https://image.api.playstation.com/cdn/UP1004/CUSA03041_00/3zDubiWo2X5WU18FGiwlsf4lKWb8MwkE.png"},
+{title:"Red Dead Redemption",price:71,plat:"ps4",img:"https://image.api.playstation.com/vulcan/ap/rnd/202307/3122/00bd08cf240ede27e4354d3fc7a5b867190df853940366ec.png"},
+{title:"God of War Hits",price:210,plat:"ps4",img:"https://image.api.playstation.com/vulcan/img/rnd/202011/1021/X3WIAh63yKhRRiMohLoJMeQu.png"},
+{title:"Mega Man 11",price:75.36,plat:"ps4",img:"https://image.api.playstation.com/cdn/UP0102/CUSA10784_00/aGDCN3H2HpWzHGzrqU4kGcLSicA16XY9.png"},
+{title:"God of War 3 Remastered",price:75,plat:"ps4",img:"https://m.media-amazon.com/images/S/aplus-media/vc/f38b4e49-1b11-49ce-a79b-cf25bcf1a573.jpg"},
+{title:"DmC Devil May Cry Definitive Edition",price:21.23,plat:"ps4",img:"https://image.api.playstation.com/cdn/UP0102/CUSA01013_00/avik0LrEZGvbZ782Xi2Bo6MQTnF9GupS.png"},
+{title:"Capcom Fighting Collection 2",price:71.88,plat:"ps4",img:"https://bdjogos.com.br/capas/24932-capcom-fighting-collection-2-capa-1.webp"},
+{title:"Mega Man Zero/ZX Legacy Collection",price:72.33,plat:"ps4",img:"https://m.media-amazon.com/images/I/71ypmsdEEkL.jpg"},
+{title:"The Last of Us Part II",price:25.33,plat:"ps4",img:"https://upload.wikimedia.org/wikipedia/pt/9/96/The_Last_of_Us_2_capa.png"},
+{title:"Devil May Cry 5",price:56.36,plat:"ps4",img:"https://image.api.playstation.com/cdn/UP0102/CUSA13451_00/TOsvbhTLIAHH67MwfquiVxqI4UloJQGV.png"},
+{title:"Uncharted Collection",price:22.22,plat:"ps4",img:"https://upload.wikimedia.org/wikipedia/pt/8/87/Uncharted_The_Nathan_Drake_Collection_capa.png"},
+{title:"Bloodborne Hits",price:36.66,plat:"ps4",img:"https://image.api.playstation.com/vulcan/img/rnd/202010/2614/Sy5e8DmeKIJVjlAGraPAJYkT.png"},
+{title:"Gran Turismo 7",price:71.55,plat:"ps4",img:"https://image.api.playstation.com/vulcan/ap/rnd/202109/1321/eFGBuaRr21HUpGtsy3biwJip.png"},
+
+/* ================= PS3 ================= */
+{title:"Uncharted 3",price:71.98,plat:"ps3",img:"https://upload.wikimedia.org/wikipedia/pt/0/02/Uncharted_3_Boxart.jpg"},
+{title:"God of War III",price:66.9,plat:"ps3",img:"https://image.api.playstation.com/vulcan/img/rnd/202011/0711/p8JCvA8692BICXAPoyylh7ed.png"},
+{title:"Injustice Gods Among Us",price:71.98,plat:"ps3",img:"https://m.media-amazon.com/images/I/71n9iY7mXcL.jpg"},
+{title:"FIFA 13",price:25.3,plat:"ps3",img:"https://cdn.awsli.com.br/600x700/742/742722/produto/106241759/5ff385bcc0.jpg"},
+{title:"GTA V",price:90.5,plat:"ps3",img:"https://m.media-amazon.com/images/I/81X9aPJMidL.jpg"},
+{title:"The Last of Us",price:47.9,plat:"ps3",img:"https://upload.wikimedia.org/wikipedia/pt/f/f4/The_Last_of_Us_Remastered.png"},
+{title:"Resident Evil 5",price:36.55,plat:"ps3",img:"https://upload.wikimedia.org/wikipedia/pt/c/c1/Resident_Evil_5_-_North-american_cover.jpg"},
+{title:"Gran Turismo 6",price:80.33,plat:"ps3",img:"https://upload.wikimedia.org/wikipedia/pt/b/bc/Gran_Turismo_6_capa.png"},
+{title:"Assassin's Creed IV Black Flag",price:10.26,plat:"ps3",img:"https://upload.wikimedia.org/wikipedia/pt/c/ca/Assassins_Creed_4_Black_Flag_capa.png"},
+{title:"Batman Arkham City",price:54.22,plat:"ps3",img:"https://upload.wikimedia.org/wikipedia/pt/f/f0/Batman_arkham_city_logo.jpg"},
+{title:"Call of Duty Black Ops",price:55.9,plat:"ps3",img:"https://upload.wikimedia.org/wikipedia/pt/5/50/Black_ops_2_cover.jpg"},
+{title:"Mortal Kombat",price:32.55,plat:"ps3",img:"https://i.redd.it/iwwbj6dcnb481.jpg"}
+];
+
+let filter="all", cart=JSON.parse(localStorage.getItem("cart")||"[]");
+updateCart();
+
+function render(){
+  const grid=document.getElementById("grid");
+  grid.innerHTML="";
+  games.forEach((g,i)=>{
+    if(filter!=="all" && g.plat!==filter) return;
+    const d=document.createElement("div");
+    d.className="card";
+    d.innerHTML=`
+      <div class="price">R$ ${g.price.toFixed(2)}</div>
+      <img src="${g.img}">
+      <h4>${g.title}</h4>
+      <small>${g.plat.toUpperCase()}</small>
+      <button onclick='addCart(${JSON.stringify(g)});event.stopPropagation()'>Adicionar</button>
+    `;
+    d.onclick = ()=> showGameModal(i);
+    grid.appendChild(d);
+  });
+}
+render();
+
+function setFilter(f,btn){
+  filter=f;
+  document.querySelectorAll("aside button").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  render();
+}
+
+function searchGame(text){
+  const filterTemp = text.toLowerCase();
+  const grid=document.getElementById("grid");
+  grid.innerHTML="";
+  games.forEach((g,i)=>{
+    if(filter!=="all" && g.plat!==filter) return;
+    if(!g.title.toLowerCase().includes(filterTemp)) return;
+    const d=document.createElement("div");
+    d.className="card";
+    d.innerHTML=`
+      <div class="price">R$ ${g.price.toFixed(2)}</div>
+      <img src="${g.img}">
+      <h4>${g.title}</h4>
+      <small>${g.plat.toUpperCase()}</small>
+      <button onclick='addCart(${JSON.stringify(g)});event.stopPropagation()'>Adicionar</button>
+    `;
+    d.onclick = ()=> showGameModal(i);
+    grid.appendChild(d);
+  });
+}
+
+function addCart(g){
+  cart.push(g);
+  localStorage.setItem("cart",JSON.stringify(cart));
+  updateCart();
+}
+
+function updateCart(){
+  document.getElementById("cartCount").textContent=cart.length;
+  const box=document.getElementById("cartItems");
+  box.innerHTML="";
+  let total=0;
+  if(cart.length===0){
+    box.innerHTML="<p>Carrinho vazio</p>";
+    document.getElementById("pix").style.display="none";
+  }
+  cart.forEach((g,i)=>{
+    total+=g.price;
+    const d=document.createElement("div");
+    d.className="cart-item";
+    d.innerHTML=`<span>${g.title}</span>
+    <span>R$ ${g.price.toFixed(2)}</span>
+    <button onclick="removeCart(${i})">Remover</button>`;
+    box.appendChild(d);
+  });
+  document.getElementById("total").textContent=total.toFixed(2);
+}
+
+function removeCart(i){
+  cart.splice(i,1);
+  localStorage.setItem("cart",JSON.stringify(cart));
+  updateCart();
+}
+
+function toggleCart(){ document.getElementById("cart").classList.toggle("active"); }
+function toggleLogin(){ const l=document.getElementById("login"); l.style.display=l.style.display==="block"?"none":"block"; }
+function saveLogin(){ 
+  const name=document.getElementById("userName").value;
+  const email=document.getElementById("userEmail").value;
+  if(!name||!email) return alert("Preencha nome e email!");
+  localStorage.setItem("user",JSON.stringify({name,email}));
+  alert("Conta salva!");
+  toggleLogin();
+}
+function showPix(){
+  if(cart.length===0) return alert("Carrinho vazio!");
+  document.getElementById("pix").style.display="block";
+}
+
+// Modal Fullscreen com comentários e estrelas
+function showGameModal(index){
+  const g = games[index];
+  const container = document.getElementById("gameDetail");
+  const comments = JSON.parse(localStorage.getItem("comments"+index)||"[]");
+  let commentsHtml = comments.map(c=>`<div class="comment"><p>${c.text}</p><small>${c.user}</small></div>`).join('');
+
+  // Avaliação
+  let rating = JSON.parse(localStorage.getItem("rating"+index)||"0");
+  let starsHtml = '';
+  for(let i=1;i<=5;i++){
+    starsHtml += `<span class="${i<=rating?'active':''}" onclick="setRating(${index},${i})">&#9733;</span>`;
+  }
+
+  container.innerHTML=`
+    <h1>${g.title}</h1>
+    <img src="${g.img}">
+    <p>Plataforma: ${g.plat.toUpperCase()}</p>
+    <p>Preço: R$ ${g.price.toFixed(2)}</p>
+    <div>
+      <h3>Avaliações</h3>
+      <div class="stars">${starsHtml}</div>
+    </div>
+    <div class="comments">
+      <h3>Comentários</h3>
+      ${commentsHtml}
+      <div class="comment">
+        <input id="cUser" placeholder="Seu nome">
+        <textarea id="cText" placeholder="Seu comentário"></textarea>
+        <button onclick="addComment(${index})">Adicionar Comentário</button>
+      </div>
+    </div>
+    <button onclick='addCart(${JSON.stringify(g)})'>Adicionar ao Carrinho</button>
+  `;
+  document.getElementById("gameModal").style.display="flex";
+}
+
+// Avaliação dinâmica
+function setRating(index, value){
+  localStorage.setItem("rating"+index,JSON.stringify(value));
+  showGameModal(index);
+}
+
+// Comentários sem recarregar
+function addComment(index){
+  const user = document.getElementById("cUser").value;
+  const text = document.getElementById("cText").value;
+  if(!user||!text) return alert("Preencha nome e comentário!");
+  let comments = JSON.parse(localStorage.getItem("comments"+index)||"[]");
+  comments.push({user,text});
+  localStorage.setItem("comments"+index,JSON.stringify(comments));
+  showGameModal(index);
+}
+
+function closeGameModal(){ document.getElementById("gameModal").style.display="none"; }
+</script>
+</body>
+</html>
